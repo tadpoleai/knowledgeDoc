@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args" : ["-t", "ingest", "-c", "./docs"]
+            // "args" : ["-t", "query", "-c", "物料期间关闭报错,消息号 ML4HMASTER106 如何处理"]
+            // "args" : ["-t", "query", "-c", "执行成本中心费用分摊分配后余额不平怎么处理"]
+
+
+        }
+    ]
+}

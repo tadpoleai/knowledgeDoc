@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package aigc;
+option go_package = "/aigc";
+
+
+// The request message containing the user's text and the type of service.
+message CreateTextRequest {
+  string text = 1;  // The user's text.
+  float randomness = 2;  // The degree of randomness for the translation or copy generation.
+  oneof service {
+    TranslationRequest translation = 3;
+    CopyGenerationRequest copy_generation = 4;
+  }
+}
+
+// The request details for translation service.
+message TranslationRequest {
+  TranslationDirection direction = 1;  // The direction of translation.
+}
+
+// The request details for copy generation service.
+message CopyGenerationRequest {
+  repeated Platform platforms = 1;  // The platforms for which to generate copy.
+}
+
+// The response message containing the server's answers.
+message CreateTextResponse {
+  repeated string translation_answers = 1;  // The server's translation answers.
+  map<string, string> copy_generation_answers = 2;  // The server's copy generation answers, mapped by platform.
+}
+
+// The directions of translation that the AIGC service can provide.
+enum TranslationDirection {
+  CHINESE_TO_ENGLISH = 0;
+  ENGLISH_TO_CHINESE = 1;
+}
+
+// The platforms for which the AIGC service can generate copy.
+enum Platform {
+  WEIBO = 0;
+  WECHAT = 1;
+  XIAOHONGSHU = 2;
+  DOUYIN = 3;
+}
+
+// The AIGC service definition.
+service AIGC {
+  // Sends a text message to the server and receives an answer.
+  rpc CreateText(CreateTextRequest) returns (CreateTextResponse);
+}

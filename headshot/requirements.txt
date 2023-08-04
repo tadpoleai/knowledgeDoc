@@ -1,0 +1,6 @@
+uvicorn
+fastapi
+openai
+Pillow
+python-multipart
+python-dotenv

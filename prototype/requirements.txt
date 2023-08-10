@@ -6,3 +6,5 @@ pinecone-text
 python-dotenv
 pinecone-text[splade]
 weaviate-client
+streamlit
+streamlit_chat

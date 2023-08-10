@@ -11,7 +11,7 @@ class HybridSearchByWeaviate():
     def __init__(self) -> None:
         
         WEAVIATE_URL = os.getenv("WEAVIATE_URL")
-        
+        print(f'WEAVIATE_URL:{WEAVIATE_URL}')
         client = weaviate.Client(
             url=WEAVIATE_URL,
             auth_client_secret=weaviate.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY")),

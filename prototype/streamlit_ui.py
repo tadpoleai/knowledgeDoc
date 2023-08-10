@@ -5,7 +5,12 @@ from streamlit_chat import message
 import io
 import asyncio
 from weaviate_search import HybridSearchByWeaviate
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationalRetrievalChain
+import tempfile
 
+from dotenv import load_dotenv
+load_dotenv()
 
 async def main():
     
@@ -28,9 +33,13 @@ async def main():
 
     uploaded_file = st.file_uploader("选择一个SAP操作手册", type="md")
     
-    hybrid_retriever = HybridSearchByWeaviate()
+    # hybrid_retriever = HybridSearchByWeaviate()
 
-    if uploaded_file is not None:
+    if uploaded_file:
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.md') as tmp:
+            tmp.write(uploaded_file.read())
+            tmp_path = tmp.name
 
         with st.spinner("Processing..."):
         # Add your code here that needs to be executed
@@ -41,7 +50,9 @@ async def main():
             # qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(model_name="gpt-3.5-turbo"), retriever=vectors.as_retriever(), return_source_documents=True)
             
             from langchain.document_loaders import TextLoader
-            loader = TextLoader(uploaded_file)
+            #uploaded_file.seek(0)
+            # file = uploaded_file.read()
+            loader = TextLoader(tmp_path)
             markdown_document = loader.load()
 
             headers_to_split_on = [
@@ -57,6 +68,7 @@ async def main():
             #TODO Only support the first document 
             md_header_splits = markdown_splitter.split_text(markdown_document[0].page_content)
             
+            hybrid_retriever = HybridSearchByWeaviate()
             hybrid_retriever.ingest_docments(md_header_splits)
             
             qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(model_name="gpt-3.5-turbo"), retriever=hybrid_retriever.as_retriever(), return_source_documents=True)
@@ -66,7 +78,7 @@ async def main():
 
     st.divider()
 
-    if st.session_state['ready']:
+    if 'ready' in st.session_state and st.session_state['ready']:
 
         if 'generated' not in st.session_state:
             st.session_state['generated'] = ["准备就绪! 让AI来帮助您更好的使用SAP系统" + uploaded_file.name]

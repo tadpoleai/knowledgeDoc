@@ -1,11 +1,19 @@
-
-
 import streamlit as st
 from streamlit_chat import message
 import io
 import asyncio
 from weaviate_search import HybridSearchByWeaviate
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chains.question_answering import load_qa_chain
 
+import tempfile
+
+from dotenv import load_dotenv
+load_dotenv()
+
+chat = ChatOpenAI(model_name='gpt-3.5-turbo-16k')
+chain = load_qa_chain(chat, chain_type="stuff")
 
 async def main():
     
@@ -28,9 +36,13 @@ async def main():
 
     uploaded_file = st.file_uploader("选择一个SAP操作手册", type="md")
     
-    hybrid_retriever = HybridSearchByWeaviate()
+    # hybrid_retriever = HybridSearchByWeaviate()
 
-    if uploaded_file is not None:
+    if uploaded_file:
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.md') as tmp:
+            tmp.write(uploaded_file.read())
+            tmp_path = tmp.name
 
         with st.spinner("Processing..."):
         # Add your code here that needs to be executed
@@ -41,7 +53,9 @@ async def main():
             # qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(model_name="gpt-3.5-turbo"), retriever=vectors.as_retriever(), return_source_documents=True)
             
             from langchain.document_loaders import TextLoader
-            loader = TextLoader(uploaded_file)
+            #uploaded_file.seek(0)
+            # file = uploaded_file.read()
+            loader = TextLoader(tmp_path)
             markdown_document = loader.load()
 
             headers_to_split_on = [
@@ -53,20 +67,22 @@ async def main():
             # MD splits
             from langchain.text_splitter import MarkdownHeaderTextSplitter
             markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+            print(f'markdown_document: {markdown_document[0]}')
             
             #TODO Only support the first document 
             md_header_splits = markdown_splitter.split_text(markdown_document[0].page_content)
             
+            hybrid_retriever = HybridSearchByWeaviate()
             hybrid_retriever.ingest_docments(md_header_splits)
             
-            qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(model_name="gpt-3.5-turbo"), retriever=hybrid_retriever.as_retriever(), return_source_documents=True)
+            #qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(model_name="gpt-3.5-turbo"), retriever=hybrid_retriever.as_retriever(), return_source_documents=True)
 
 
         st.session_state['ready'] = True
 
     st.divider()
 
-    if st.session_state['ready']:
+    if 'ready' in st.session_state and st.session_state['ready']:
 
         if 'generated' not in st.session_state:
             st.session_state['generated'] = ["准备就绪! 让AI来帮助您更好的使用SAP系统" + uploaded_file.name]
@@ -86,10 +102,18 @@ async def main():
                 submit_button = st.form_submit_button(label='发送')
 
             if submit_button and user_input:
-                output = await conversational_chat(user_input)
+                #output = await conversational_chat(user_input)
                 # chain = load_qa_chain(chat, chain_type="stuff")
-                # answer = chain.run(input_documents=search_result[0:2], question=question)            
+                # answer = chain.run(input_documents=search_result[0:2], question=question)    
                 
+                print(f'用户的问题是：{user_input}')
+                search_result = hybrid_retriever.search(user_input)
+                if len(search_result) == 0:
+                    output = "很抱歉，没有发现与问题相关的原文内容"
+                else:
+                    print(search_result)
+                    output = chain.run(input_documents=search_result[0:2], question=user_input)            
+                        
                 
                 st.session_state['past'].append(user_input)
                 st.session_state['generated'].append(output)

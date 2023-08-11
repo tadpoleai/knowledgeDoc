@@ -23,3 +23,21 @@ markdown能够较好的保留问答的层级和图表内容，对于完整的文
 python main.py -t ingest -c "./docs"
 python main.py -t query -c "执行成本中心费用分摊分配后余额不平怎么处理"
 ```
+
+### streamlit ui
+
+1. 本地调试
+
+```shell
+pip install -r requirements.txt
+streamlit run streamlit_ui.py
+```
+
+2. docker部署
+```shell
+docker build -f streamlit.Dockerfile -t streamlit_ui .
+docker run -d -p 3006:3006 --env-file=your.env streamlit_ui
+```
+
+open url: http://localhost:3006
+

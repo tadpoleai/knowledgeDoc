@@ -16,28 +16,9 @@ import tempfile
 from dotenv import load_dotenv
 load_dotenv()
 
-# prompt_template = """你是一个有用的 AI 助手。请使用以下上下文信息回答最后的问题。
-# 如果你不知道答案，只需说你不知道。不要试图编造答案。
-# 以 markdown 形式输出答案
-
-# {context}
-
-# 问题：{question}
-# 回答:"""
-
-# prompt_template = """你是一个有用的 AI 助手。请使用以下上下文信息回答最后的问题。
-# 如果你不知道答案，只需说你不知道。不要试图编造答案。
-# 以 markdown 形式输出答案, 你的回答中保留context中的图像超链接
-
-# {context}
-
-# 问题：{question}
-# 图片：{images}
-# 回答:"""
-
 
 prompt_template = """
-您是一个专业的AI助手，专门为用户提供详细、结构化的答案。请根据以下文档内容回答用户的问题：“{question}”。请尽量按照以下示例答案的格式进行组织，‘查看图片'部分一定保留<img>：
+您是一个专业的AI助手，专门为用户提供详细、结构化的答案。请根据以下文档内容回答用户的问题：“{question}”。请尽量按照以下示例答案的格式进行组织，尽量保留‘查看图片'：
 
 示例答案：
 生产订单余额检查：
@@ -70,8 +51,7 @@ async def main():
     async def conversational_chat(query):
         result = qa({"question": query, "chat_history": st.session_state['history']})
         st.session_state['history'].append((query, result["answer"]))
-        # print("Log: ")
-        # print(st.session_state['history'])
+
         return result["answer"]
 
     if 'history' not in st.session_state:
@@ -97,8 +77,6 @@ async def main():
     if upload_option == "是":
         uploaded_file = st.file_uploader("选择一个SAP操作手册", type="md")
         
-        # hybrid_retriever = HybridSearchByWeaviate()
-
         if uploaded_file:
 
             with tempfile.NamedTemporaryFile(delete=False, suffix='.md') as tmp:
@@ -107,8 +85,6 @@ async def main():
 
             with st.spinner("Processing..."):
                 from langchain.document_loaders import TextLoader
-                #uploaded_file.seek(0)
-                # file = uploaded_file.read()
                 loader = TextLoader(tmp_path)
                 markdown_document = loader.load()
 
@@ -166,35 +142,14 @@ async def main():
                     user_input = default_question
 
             if submit_button and user_input:
-                #output = await conversational_chat(user_input)
-                # chain = load_qa_chain(chat, chain_type="stuff")
-                # answer = chain.run(input_documents=search_result[0:2], question=question)    
-                print(f'locals:{locals()}')
+
                 if 'hybrid_retriever' in locals():
                     print(f'用户的问题是：{user_input}')
                     search_result = hybrid_retriever.search(user_input)
                     if len(search_result) == 0:
                         output = "很抱歉，没有发现与问题相关的原文内容"
                     else:
-                        print(search_result)
-                        
-                        # 提取所有的<img>标签
-                        # img_tags = []
-                        # for doc in search_result[0:2]:
-                        #     img_tags.extend(re.findall(r'(<img[^>]+>)', doc.page_content))
-                        # print(img_tags)
-
-                        # 将<img>标签合并为一个字符串
-                        #img_str = "\n\n".join(img_tags)
                         output = chain.run(input_documents=search_result[0:2], question=user_input) 
-                        
-                        # 提取所有的<img>标签
-                        # img_tags = []
-                        # for doc in search_result:
-                        #     img_tags.extend(re.findall(r'(<img[^>]+>)', doc.page_content))
-                        
-                        # # 将<img>标签添加到OpenAI返回的答案中
-                        # output += "\n\n" + "\n".join(img_tags)
                         
                         # Assuming 'output' contains the answer in Markdown format
                         # Extract <img> tags from the 'output'
@@ -202,19 +157,22 @@ async def main():
                         img_tags = soup.find_all('img')
 
                         # List to store image paths for later rendering
-                        img_paths = [tag['src'] for tag in img_tags]
+                        img_paths = []
 
-                        # Replace <img> tags in the 'output' with "查看图片" text
-                        # for tag in img_tags:
-                        #     tag.replace_with("查看图片")
+                        for index, tag in enumerate(img_tags):
+                            # Extract the image path
+                            img_path = tag['src']
+                            img_paths.append(img_path)
+                            
+                            # Create a reference link in Markdown format
+                            reference_link = f"查看第{index + 1}张图片"
+                            
+                            # Replace the original <img> tag with the Markdown image link
+                            tag.replace_with(reference_link)
 
                         # Convert the modified soup back to string for display
                         modified_output = str(soup)
-                        
-
-                        print(f'output:{output}') 
-                        
-                        print(f'modified_output:{modified_output}') 
+                        print(f'系统的答案是：{modified_output}')
                             
                     
                     st.session_state['past'].append(user_input)
@@ -226,12 +184,10 @@ async def main():
             with response_container:
                 for i in range(len(st.session_state['generated'])):
                     message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="thumbs")
-                    #message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
-                    # 使用st.markdown来显示OpenAI返回的Markdown
-                    # st.markdown(st.session_state["generated"][i])
+                    message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
 
                     # Display the modified answer
-                    st.markdown(st.session_state["generated"][i])
+                    # st.markdown(st.session_state["generated"][i])
                     
                     if st.session_state["image_ref"]:
                         img_paths = st.session_state["image_ref"][i]
@@ -239,26 +195,12 @@ async def main():
                     else:
                         img_paths = []
 
-                    # Display images at the end of the answer
-                    for img_path in img_paths:
-                        # Use streamlit to display the image, you can adjust the width and use_caption as needed
-                        st.image(img_path, use_column_width=True, caption="点击放大")
-                    
-                    # 使用BeautifulSoup解析Markdown内容
-                    # soup = BeautifulSoup(st.session_state["generated"][i], 'html.parser')
-                    
-                    # # 查找所有的<img>标签
-                    # for img_tag in soup.find_all('img'):
-                    #     # 获取图片的相对路径
-                    #     img_path = img_tag['src']
-                    #     # 使用st.image显示图片
-                    #     st.image(os.path.join(os.getcwd(), img_path))
-                    #     # 从Markdown内容中移除<img>标签
-                    #     img_tag.decompose()
-                    
-                    # # 使用st.markdown显示剩余的Markdown内容
-                    # st.markdown(str(soup))
+                    # Display images at the end of the answer                    
+                    for index, img_path in enumerate(img_paths):
+                        # st.image(img_path, use_column_width=True, caption=f"图片 {index + 1}")
+                        st.image(img_path, use_column_width=True, width=100, caption=f"图片 {index + 1} (点击查看完整图像)")
 
+                    
 
 if __name__ == "__main__":
     asyncio.run(main())

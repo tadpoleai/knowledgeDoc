@@ -10,11 +10,15 @@ from langchain.prompts import PromptTemplate
 import re
 import os
 from bs4 import BeautifulSoup
-
+from pathlib import Path
 import tempfile
 
 from dotenv import load_dotenv
 load_dotenv()
+
+# docs prefix path
+docs_prefix = os.getenv("IMG_PATH_PREFIX", "docs")
+print(f'docs_prefix:{docs_prefix}')
 
 
 prompt_template = """
@@ -160,9 +164,9 @@ async def main():
                         img_paths = []
 
                         for index, tag in enumerate(img_tags):
-                            # Extract the image path
-                            img_path = tag['src']
-                            img_paths.append(img_path)
+                            # Extract the image path                            
+                            img_path = Path(docs_prefix) / tag['src']
+                            img_paths.append(str(img_path))
                             
                             # Create a reference link in Markdown format
                             reference_link = f"查看第{index + 1}张图片"

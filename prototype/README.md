@@ -40,3 +40,5 @@ docker run -d -p 3006:3006 --env-file=your.env streamlit_ui
 ```
 
 open url: http://localhost:3006
+
+<img src="/Users/admin/code/github/gpt/knowledgeDoc/prototype/./9/media/image103.png" style="width:6.26806in;height:3.39028in" />

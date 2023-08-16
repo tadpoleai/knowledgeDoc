@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 #FROM python:3.9-slim
 #FROM ubuntu:20.04
+=======
+
+>>>>>>> 9bc4c07bc8e161d7dec7336c4124fb8ee0d65893
 FROM python:3.9.10-buster
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+<<<<<<< HEAD
 #RUN APT_INSTALL="apt-get install -y --no-install-recommends --allow-unauthenticated" && \
 #    apt-get update && \
 #    DEBIAN_FRONTEND=noninteractive $APT_INSTALL
 
+=======
+>>>>>>> 9bc4c07bc8e161d7dec7336c4124fb8ee0d65893
 ENV APP /app
 ENV PORT 3006
 WORKDIR $APP

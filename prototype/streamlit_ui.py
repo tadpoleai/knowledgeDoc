@@ -176,8 +176,7 @@ async def main():
 
                         # Convert the modified soup back to string for display
                         modified_output = str(soup)
-                        print(f'系统的答案是：{modified_output}')
-                            
+                        print(f'AI的答案是：{modified_output}')
                     
                     st.session_state['past'].append(user_input)
                     st.session_state['generated'].append(modified_output)
@@ -188,10 +187,10 @@ async def main():
             with response_container:
                 for i in range(len(st.session_state['generated'])):
                     message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="thumbs")
-                    message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
+                    message('AI', key=str(i), avatar_style="fun-emoji")
 
                     # Display the modified answer
-                    # st.markdown(st.session_state["generated"][i])
+                    st.markdown(st.session_state["generated"][i])
                     
                     if st.session_state["image_ref"]:
                         img_paths = st.session_state["image_ref"][i]
@@ -202,7 +201,7 @@ async def main():
                     # Display images at the end of the answer                    
                     for index, img_path in enumerate(img_paths):
                         # st.image(img_path, use_column_width=True, caption=f"图片 {index + 1}")
-                        st.image(img_path, use_column_width=True, width=100, caption=f"图片 {index + 1} (点击查看完整图像)")
+                        st.image(img_path, use_column_width=True, width=100, caption=f"图片 {index + 1} (点击右上角查看完整图像)")
 
                     
 

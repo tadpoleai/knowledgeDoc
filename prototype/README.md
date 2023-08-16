@@ -39,6 +39,10 @@ docker build -f streamlit.Dockerfile -t streamlit_ui .
 docker run -d -p 3006:3006 --env-file=your.env streamlit_ui
 ```
 
-open url: http://localhost:3006
+新增本地化部署weaviate
+```shell
+docker-compose -f setup/weaviate/docker-compose.yml up -d
+```
+本地化weaviate之后，环境变量WEAVIATE_URL=http://localhost:8080，如果还是通过WEAVIATE_API_KEY链接weaviate cloud，这个判断是通过WEAVIATE_URL是否包含‘localhost’字符来自动选择
 
-<img src="/Users/admin/code/github/gpt/knowledgeDoc/prototype/./9/media/image103.png" style="width:6.26806in;height:3.39028in" />
+open url: http://localhost:3006

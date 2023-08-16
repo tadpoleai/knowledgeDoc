@@ -1,8 +1,7 @@
 langchain==0.0.224
 openai
-scikit-learn
-pinecone-client
-pinecone-text
 python-dotenv
-pinecone-text[splade]
 weaviate-client
+streamlit
+streamlit_chat
+bs4

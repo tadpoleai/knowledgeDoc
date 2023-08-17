@@ -24,7 +24,9 @@ python main.py -t ingest -c "./docs"
 python main.py -t query -c "执行成本中心费用分摊分配后余额不平怎么处理"
 ```
 
-### streamlit ui
+### streamlit sap
+
+基于企业内部sap操作手册的文档问答
 
 1. 本地调试
 
@@ -46,3 +48,16 @@ docker-compose -f setup/weaviate/docker-compose.yml up -d
 本地化weaviate之后，环境变量WEAVIATE_URL=http://localhost:8080，如果还是通过WEAVIATE_API_KEY链接weaviate cloud，这个判断是通过WEAVIATE_URL是否包含‘localhost’字符来自动选择
 
 open url: http://localhost:3006
+
+
+### streamlit stuff
+
+基于企业内部员工手册的文档问答
+
+1. 本地调试
+
+```shell
+pip install -r requirements.txt
+streamlit run streamlit_stuff.py
+```
+后续内容同上

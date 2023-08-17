@@ -1,0 +1,34 @@
+---
+version: '3.4'
+services:
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: semitechnologies/weaviate:1.20.1
+    ports:
+    - 8080:8080
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-openai'
+      ENABLE_MODULES: 'text2vec-openai'
+      CLUSTER_HOSTNAME: 'node1'
+      DISK_USE_WARNING_PERCENTAGE: 95   # should be more cautions
+      DISK_USE_READONLY_PERCENTAGE: 98
+  # sap_insights:
+  #   image: streamlit_ui:1.1
+  #   ports:
+  #   - 3006:3006
+  #   restart: on-failure:0
+  #   volumes:
+  #     - /your/markdown_docs_data:/data 
+...
+
+

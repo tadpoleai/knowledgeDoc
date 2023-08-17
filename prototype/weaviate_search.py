@@ -12,9 +12,10 @@ class HybridSearchByWeaviate():
         
         WEAVIATE_URL = os.getenv("WEAVIATE_URL")
         print(f'WEAVIATE_URL:{WEAVIATE_URL}')
+        # my_credentials = weaviate.AuthClientPassword(USER_NAME, MY_PASSWORD)
         client = weaviate.Client(
             url=WEAVIATE_URL,
-            auth_client_secret=weaviate.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY")),
+            auth_client_secret=None,#weaviate.AuthApiKey(api_key=os.getenv("WEAVIATE_API_KEY")),
             additional_headers={
                 "X-Openai-Api-Key": os.getenv("OPENAI_API_KEY"),
             },

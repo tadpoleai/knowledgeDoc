@@ -39,5 +39,10 @@ docker build -f streamlit.Dockerfile -t streamlit_ui .
 docker run -d -p 3006:3006 --env-file=your.env streamlit_ui
 ```
 
+新增本地化部署weaviate
+```shell
+docker-compose -f setup/weaviate/docker-compose.yml up -d
+```
+
 open url: http://localhost:3006
 

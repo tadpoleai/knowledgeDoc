@@ -12,6 +12,7 @@ import os
 from bs4 import BeautifulSoup
 from pathlib import Path
 import tempfile
+from prompt_repos import prompt_template0 as prompt_template
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,28 +21,6 @@ load_dotenv()
 docs_prefix = os.getenv("IMG_PATH_PREFIX", "docs")
 print(f'docs_prefix:{docs_prefix}')
 
-
-prompt_template = """
-您是一个专业的AI助手，专门为用户提供详细、结构化的答案。请根据以下文档内容回答用户的问题：“{question}”。请尽量按照以下示例答案的格式进行组织，尽量保留‘查看图片'：
-
-示例答案：
-生产订单余额检查：
-- 使用事务代码：S_ALR_87013127
-- 查看图片：<img src="./9/media/image103.png"/>
-- 订单类型限制为HP*，期间输入当期，格式选择/Z001.
-- 查询输出中的“总的实际成本”应该等于在制品金额。如果不存在未完工订单，该金额应该等于零。
-
-科目余额检查：
-- 使用事务代码：ZFI020
-- 查看图片：<img src="./9/media/image105.png"/>
-- 输入相关字段信息，如公司代码、年度、会计期间等。
-- 点击执行，查看图片：<img src="./9/media/image106.png"/>
-- 查看列“本期金额”的合计数等于零，则生产成本和制造费用全部结清，生产成本月结完成无误。
-
-{context}
-
-问题：“{question}”
-"""
 
 QA_PROMPT = PromptTemplate(
     template=prompt_template, input_variables=["context", "question"]
@@ -176,7 +155,7 @@ async def main():
 
                         # Convert the modified soup back to string for display
                         modified_output = str(soup)
-                        print(f'系统的答案是：{modified_output}')
+                        print(f'AI的回答是：{modified_output}')
                             
                     
                     st.session_state['past'].append(user_input)
@@ -188,10 +167,10 @@ async def main():
             with response_container:
                 for i in range(len(st.session_state['generated'])):
                     message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="thumbs")
-                    message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
+                    message('AI', key=str(i), avatar_style="fun-emoji")
 
                     # Display the modified answer
-                    # st.markdown(st.session_state["generated"][i])
+                    st.markdown(st.session_state["generated"][i])
                     
                     if st.session_state["image_ref"]:
                         img_paths = st.session_state["image_ref"][i]
@@ -202,7 +181,7 @@ async def main():
                     # Display images at the end of the answer                    
                     for index, img_path in enumerate(img_paths):
                         # st.image(img_path, use_column_width=True, caption=f"图片 {index + 1}")
-                        st.image(img_path, use_column_width=True, width=100, caption=f"图片 {index + 1} (点击查看完整图像)")
+                        st.image(img_path, use_column_width=True, width=100, caption=f"图片 {index + 1} (点击右上角查看完整图像)")
 
                     
 

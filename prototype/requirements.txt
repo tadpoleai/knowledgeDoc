@@ -4,3 +4,4 @@ python-dotenv
 weaviate-client
 streamlit
 streamlit_chat
+bs4

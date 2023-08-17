@@ -129,8 +129,13 @@ async def main():
                 if 'hybrid_retriever' in locals():
                     print(f'用户的问题是：{user_input}')
                     search_result = hybrid_retriever.search(user_input)
+                    
+                    # List to store image paths for later rendering
+                    img_paths = []
+                    
                     if len(search_result) == 0:
                         output = "很抱歉，没有发现与问题相关的原文内容"
+                        modified_output = output
                     else:
                         output = chain.run(input_documents=search_result[0:2], question=user_input) 
                         
@@ -138,9 +143,6 @@ async def main():
                         # Extract <img> tags from the 'output'
                         soup = BeautifulSoup(output, 'html.parser')
                         img_tags = soup.find_all('img')
-
-                        # List to store image paths for later rendering
-                        img_paths = []
 
                         for index, tag in enumerate(img_tags):
                             # Extract the image path                            
@@ -155,8 +157,7 @@ async def main():
 
                         # Convert the modified soup back to string for display
                         modified_output = str(soup)
-                        print(f'AI的回答是：{modified_output}')
-                            
+                        print(f'AI的答案是：{modified_output}')
                     
                     st.session_state['past'].append(user_input)
                     st.session_state['generated'].append(modified_output)

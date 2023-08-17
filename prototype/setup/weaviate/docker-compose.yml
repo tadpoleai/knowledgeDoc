@@ -22,13 +22,6 @@ services:
       CLUSTER_HOSTNAME: 'node1'
       DISK_USE_WARNING_PERCENTAGE: 95   # should be more cautions
       DISK_USE_READONLY_PERCENTAGE: 98
-  # sap_insights:
-  #   image: streamlit_ui:1.1
-  #   ports:
-  #   - 3006:3006
-  #   restart: on-failure:0
-  #   volumes:
-  #     - /your/markdown_docs_data:/data 
 ...
 
 
